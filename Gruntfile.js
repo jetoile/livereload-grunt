@@ -7,6 +7,19 @@ module.exports = function(grunt) {
  
   // Configure Grunt 
   grunt.initConfig({
+
+     markdown: {
+      all: {
+        files: [
+          {
+            expand: true,
+            src: '*.md',
+            dest: 'html/',
+            ext: '.html'
+          }
+        ]
+      }
+    },
  
     // grunt-express will serve the files from the folders listed in `bases`
     // on specified `port` and `hostname`
@@ -32,7 +45,8 @@ module.exports = function(grunt) {
         // or an Array of String for multiple entries
         // You can use globing patterns like `css/**/*.css`
         // See https://github.com/gruntjs/grunt-contrib-watch#files
-        files: '*.html',
+        files: ['*.md','*.html'],
+        tasks : ['markdown'],
         options: {
           livereload: true
         }
@@ -50,6 +64,7 @@ module.exports = function(grunt) {
  
   // Creates the `server` task
   grunt.registerTask('default', [
+    'markdown',
     'express',
     'open',
     'watch'
