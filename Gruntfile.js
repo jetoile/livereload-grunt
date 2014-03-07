@@ -1,3 +1,5 @@
+var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+
 // Gruntfile with the configuration of grunt-express and grunt-open. No livereload yet!
 module.exports = function(grunt) {
 
@@ -21,21 +23,6 @@ module.exports = function(grunt) {
       }
     },
  
-    // grunt-express will serve the files from the folders listed in `bases`
-    // on specified `port` and `hostname`
-    express: {
-      all: {
-        options: {
-          port: 9000,
-          hostname: "0.0.0.0",
-          bases: ['html'], // Replace with the directory you want the files served from
-                              // Make sure you don't use `.` or `..` in the path as Express
-                              // is likely to return 403 Forbidden responses if you do
-                              // http://stackoverflow.com/questions/14594121/express-res-sendfile-throwing-forbidden-error
-          livereload: true
-        }
-      }
-    },
  
     // grunt-watch will monitor the projects files
     watch: {
@@ -52,21 +39,33 @@ module.exports = function(grunt) {
         }
       }
     },
- 
-    // grunt-open will open your browser at the project's URL
-    open: {
-      all: {
-        // Gets the port from the connect configuration
-        path: 'http://localhost:<%= express.all.options.port%>'
-      }
-    }
+
+    connect: {
+        livereload: {
+             options: {
+                 port: 9000,
+                 livereload: 35729,
+                 hostname: '0.0.0.0',
+                 open: true,
+                 base: [
+                     'html'
+                 ],
+                 middleware: function (connect) {
+                     return [
+                         proxySnippet,
+                         connect.static(require('path').resolve('html'))
+                     ];
+                 }
+             }
+         }
+     }
   });
  
   // Creates the `server` task
   grunt.registerTask('default', [
     'markdown',
-    'express',
-    'open',
+    'configureProxies',
+    'connect',
     'watch'
   ]);
 };
